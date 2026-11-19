@@ -1,0 +1,8 @@
+streamlit
+numpy
+pandas
+pillow
+ai-edge-litert
+xgboost
+joblib
+scikit-learn
