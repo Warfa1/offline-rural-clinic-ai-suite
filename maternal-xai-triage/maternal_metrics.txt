@@ -1,0 +1,9 @@
+======================================================
+MATERNAL HEALTH XAI TRIAGE - RESULTS
+=======================================================
+Dataset Size             : 1014 rural clinic records (Test: 203)
+Random Forest    -> Acc: 84.73% | High-Risk Recall: 96.36% | F1: 85.17% | Latency: 10.136 ms
+XGBoost          -> Acc: 81.28% | High-Risk Recall: 94.55% | F1: 81.95% | Latency: 1.627 ms
+Deployable Model Size    : 700.2 KB
+SHAP Visual Chart Saved  : /content/drive/MyDrive/Maternal_XAI_Project/shap_feature_importance.png
+=======================================================
