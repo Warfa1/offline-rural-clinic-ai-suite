@@ -1,0 +1,10 @@
+=============================================
+RESULTS
+=============================================
+Total Validation Samples : 5511
+Overall Accuracy         : 93.49%
+Sensitivity (Recall)     : 92.31%
+Specificity              : 94.63%
+Quantized Model Size     : 2.41 MB
+Avg CPU Inference Time   : 4.07 ms/cell
+=============================================
