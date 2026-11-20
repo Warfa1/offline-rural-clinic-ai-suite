@@ -1,3 +1,4 @@
+
 import threading
 from pathlib import Path
 
@@ -54,12 +55,11 @@ RISK_NAMES = ["Low risk", "Mid risk", "High risk"]
 def load_maternal(path):
     import xgboost as xgb
     if path.endswith(".json"):
-        model = xgb.XGBClassifier()
-        model.load_model(path)
-    else:
-        import joblib
-        model = joblib.load(path)
-    return model.get_booster()
+        booster = xgb.Booster()   # JSON model: no scikit-learn or pickle needed
+        booster.load_model(path)
+        return booster
+    import joblib
+    return joblib.load(path).get_booster()
 
 
 def predict_maternal(booster, values):
@@ -136,7 +136,12 @@ with tab_maternal:
         st.error("Maternal model file (maternal_xgb_triage.json or .joblib) was not found "
                  "in the repository.")
     else:
-        booster = load_maternal(maternal_path)
+        try:
+            booster = load_maternal(maternal_path)
+        except Exception:
+            st.error("The maternal model file could not be loaded. Please save it as "
+                     "maternal_xgb_triage.json and upload it to the repository.")
+            st.stop()
         c1, c2 = st.columns(2)
         age = c1.number_input("Age (years)", 10, 60, 25)
         sys_bp = c1.number_input("Systolic blood pressure (mmHg)", 60, 220, 120)
