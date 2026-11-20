@@ -80,8 +80,7 @@ def predict_maternal(booster, values):
 st.title("Offline Health AI Prototypes (Research Demo)")
 st.warning(
     "Research demo only. Not a medical device. Not for diagnosis or treatment decisions. "
-    "Both models were trained on small public datasets and have not been validated in any "
-    "clinic. Do not enter or upload real patient information."
+    "Both models were trained on public datasets and have not been validated in any clinic"
 )
 
 tab_malaria, tab_maternal = st.tabs(["Malaria cell classifier", "Maternal risk triage"])
