@@ -6,5 +6,5 @@ pandas
 numpy
 matplotlib
 pillow
-tensorflow-cpu
+ai-edge-litert
 joblib
