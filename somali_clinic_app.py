@@ -8,7 +8,6 @@ import matplotlib.pyplot as plt
 import shap
 from PIL import Image
 
-# Use lightweight LiteRT runtime on Streamlit Cloud (falls back to tf.lite locally if needed)
 try:
     from ai_edge_litert.interpreter import Interpreter
 except ImportError:
@@ -18,12 +17,11 @@ except ImportError:
 st.set_page_config(page_title="Offline Rural Clinic AI Suite", page_icon="🏥", layout="wide")
 
 def find_model_path(filename):
-    """Finds model whether placed in 'models/' subfolder or repository root."""
     base_dir = os.path.dirname(os.path.abspath(__file__))
-    for candidate in [os.path.join(base_dir, "models", filename), os.path.join(base_dir, filename)]:
+    for candidate in [os.path.join(base_dir, filename), os.path.join(base_dir, "models", filename)]:
         if os.path.exists(candidate):
             return candidate
-    raise FileNotFoundError(f"Could not find {filename} in models/ or root directory.")
+    raise FileNotFoundError(f"Could not find {filename}")
 
 TEXT = {
     "en": {
@@ -147,8 +145,10 @@ with tab1:
             "facility_distance_barrier": int(dist)
         }])
 
-        model = joblib.load(find_model_path("somali_maternal_transfer_xgb.joblib"))
-        prob = float(model.predict_proba(row)[:, 1].item(0))
+        pipeline = joblib.load(find_model_path("somali_maternal_transfer_xgb.joblib"))
+        clf = pipeline.named_steps["clf"]
+        X_in = row.astype(np.float32)
+        prob = float(clf.predict_proba(X_in)[:, 1].item(0))
 
         if bleeding:
             st.error(L["high_risk"])
@@ -158,11 +158,8 @@ with tab1:
         else:
             st.success(f"{L['low_risk']} (Risk Score: {prob:.2f})")
 
-        imp = model.named_steps["imp"]
-        clf = model.named_steps["clf"]
-        X_imp = pd.DataFrame(imp.transform(row), columns=row.columns)
         explainer = shap.TreeExplainer(clf)
-        sv = explainer.shap_values(X_imp).reshape(-1)
+        sv = explainer.shap_values(X_in).reshape(-1)
         shap_df = pd.DataFrame({"Feature": row.columns, "Impact": sv}).sort_values("Impact", key=abs, ascending=True).tail(8)
 
         fig, ax = plt.subplots(figsize=(8, 3.8))
