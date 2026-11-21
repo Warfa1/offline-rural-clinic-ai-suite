@@ -1,8 +1,10 @@
 streamlit
-numpy
-pandas
-pillow
-ai-edge-litert
-xgboost
-joblib
 scikit-learn
+xgboost
+shap
+pandas
+numpy
+matplotlib
+pillow
+tensorflow-cpu
+joblib
