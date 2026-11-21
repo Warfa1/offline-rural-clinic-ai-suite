@@ -7,9 +7,23 @@ import streamlit as st
 import matplotlib.pyplot as plt
 import shap
 from PIL import Image
-import tensorflow as tf
+
+# Use lightweight LiteRT runtime on Streamlit Cloud (falls back to tf.lite locally if needed)
+try:
+    from ai_edge_litert.interpreter import Interpreter
+except ImportError:
+    import tensorflow as tf
+    Interpreter = tf.lite.Interpreter
 
 st.set_page_config(page_title="Offline Rural Clinic AI Suite", page_icon="🏥", layout="wide")
+
+def find_model_path(filename):
+    """Finds model whether placed in 'models/' subfolder or repository root."""
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+    for candidate in [os.path.join(base_dir, "models", filename), os.path.join(base_dir, filename)]:
+        if os.path.exists(candidate):
+            return candidate
+    raise FileNotFoundError(f"Could not find {filename} in models/ or root directory.")
 
 TEXT = {
     "en": {
@@ -133,8 +147,7 @@ with tab1:
             "facility_distance_barrier": int(dist)
         }])
 
-        base_dir = os.path.dirname(os.path.abspath(__file__))
-        model = joblib.load(os.path.join(base_dir, "models", "somali_maternal_transfer_xgb.joblib"))
+        model = joblib.load(find_model_path("somali_maternal_transfer_xgb.joblib"))
         prob = float(model.predict_proba(row)[:, 1].item(0))
 
         if bleeding:
@@ -168,8 +181,7 @@ with tab2:
         img = Image.open(uploaded).convert("RGB")
         st.image(img, width=180, caption="Input Cell Patch (Resized to 96x96)")
 
-        base_dir = os.path.dirname(os.path.abspath(__file__))
-        interp = tf.lite.Interpreter(model_path=os.path.join(base_dir, "models", "somali_malaria_stain_aug_int8.tflite"))
+        interp = Interpreter(model_path=find_model_path("somali_malaria_stain_aug_int8.tflite"))
         interp.allocate_tensors()
         in_idx = next(iter(interp.get_input_details()))["index"]
         out_idx = next(iter(interp.get_output_details()))["index"]
